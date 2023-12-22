@@ -2,8 +2,8 @@ import constants
 
 class Stack():
     def __init__(self):
-        self.top_color = None
-        self.bottom_color = None
+        self.top_color = constants.EMPTY_COLOR
+        self.bottom_color = constants.EMPTY_COLOR
         self.num_pieces = 0
     
     def flip(self):
@@ -17,7 +17,7 @@ class Stack():
             raise ValueError("stack is already full, cannot add another piece")
         self.num_pieces += 1
         self.top_color = color
-        if self.num_pieces == 1:
+        if self.bottom_color == constants.EMPTY_COLOR:
             self.bottom_color = color
     
     def full(self):

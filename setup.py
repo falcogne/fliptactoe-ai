@@ -25,7 +25,17 @@ class FourPlayerGame():
 
     
     def play(self):
-        for p in self.order:
+        turn_i = 0
+        while self.board.winner() is None:
+            p = self.order[turn_i]
             n = p.turn()
+            turn_i = (turn_i+1) % len(self.order)
+        # print(self.board)
+        # print(self.board.winner())
 
-    
+
+if __name__ == "__main__":
+    game = FourPlayerGame()
+    for _ in range(10_000):
+        game.play()
+        game.reset()

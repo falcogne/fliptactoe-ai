@@ -23,12 +23,15 @@ class Player():
         if move[0] == 0: # "place" move
             self.board.grid[move[1]][move[2]].put_piece(self.color)
             if self.board.grid[move[1]][move[2]].full():
-                self.board.available_spots.remove(move)
+                self.board.possible_moves.remove(move)
+            if self.board.grid[move[1]][move[2]].num_pieces == 1:
+                self.board.possible_moves.append((1, move[1], move[2]))
         elif move[0] == 1:
             self.board.grid[move[1]][move[2]].flip()
             #flipping does not change the available moves ever
         else:
             raise ValueError(f"invalid move ID: '{move[0]}', must be 0 or 1")
+        return move
     
     def reset(self):
         pass # shouldn't reset color, and board is reset seperately
