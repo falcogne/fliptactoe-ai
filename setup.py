@@ -5,7 +5,7 @@ import random
 
 class FourPlayerGame():
     def __init__(self):
-        self.board = board.Board()
+        self.board = board.Board(size=(5, 4))
         self.color_1 = stack.Color('r', '.')
         self.player_1 = players.Player(self.board, self.color_1)
         self.color_2 = stack.Color('b', '&')
@@ -30,12 +30,12 @@ class FourPlayerGame():
             p = self.order[turn_i]
             n = p.turn()
             turn_i = (turn_i+1) % len(self.order)
-        # print(self.board)
-        # print(self.board.winner())
+        print(self.board)
+        print(self.board.winner())
 
 
 if __name__ == "__main__":
     game = FourPlayerGame()
-    for _ in range(10_000):
-        game.play()
-        game.reset()
+    # for _ in range(30_000):
+    game.play()
+    game.reset()
