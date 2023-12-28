@@ -16,18 +16,19 @@ class Model():
 
         self.model = nn.Sequential(
             # nn.Flatten(),
-            nn.Conv2d(1, 15, kernel_size=[1,3], padding=(0, 0)),
-            nn.Conv2d(15, 50, kernel_size=[2,2], padding=(1, 1)),
-            nn.Conv2d(50, 20, kernel_size=[3,3], padding=(2, 2)),
-            nn.Conv2d(20, 1, kernel_size=[4,4]),
+            nn.Conv2d(1, 8, kernel_size=[1,3], padding=(0, 0)),
+            nn.Conv2d(8, 50, kernel_size=[2,2], padding=(1, 1)),
+            nn.Conv2d(50, 1, kernel_size=[3,3], padding=(2, 2)),
+            # nn.Conv2d(100, 140, kernel_size=[4,4]),
             nn.Flatten(),
-            nn.Linear(40, 12),
+            nn.Linear(91, 100),
             # nn.ReLU(),
-            # nn.Sigmoid(),
+            nn.Sigmoid(),
             # nn.LogSigmoid(),
-            nn.Linear(12, 8),
+            nn.Linear(100, 120),
             # nn.ReLU(),
-            nn.Linear(8, 1),
+            nn.Linear(120, 50),
+            nn.Linear(50, 1),
             # nn.Sigmoid(),
             # nn.Softmax(),
         ).to(self.device)
@@ -42,7 +43,6 @@ class Model():
         y_pred = self.calculate(torch.FloatTensor([node_chosen.board_vec]))
         y_actual = torch.FloatTensor([[y_actual]])
         self.loss = self.loss_fn(y_pred, y_actual)
-        torch.autograd.set_detect_anomaly(True)
         self.optimizer.zero_grad()
         self.loss.backward()
         self.optimizer.step()

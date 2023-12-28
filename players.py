@@ -112,12 +112,12 @@ class VISIONPLAYER(Player):
     def give_reward(self, r):
         num_turns = len(self.path)
         reward_proportions = linspace(0.08, 1, num_turns)
+        reward = [r*p for p in reward_proportions]
         for i in range(len(self.path)-1, -1, -1):
-            p = reward_proportions[i]
             # print(f"applying {p} proportion of reward {r} to the {i}th node in path")
             self.path[i].model.apply_reward(
                 node_chosen=self.path[i],
-                y_actual=r * p
+                y_actual=reward[i]
             )
         self.reset()
 

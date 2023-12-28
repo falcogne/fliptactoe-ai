@@ -16,13 +16,13 @@ class Board():
 
         # self.player_1 = players.Player(self, self.color_1)
         # self.player_2 = players.Player(self, self.color_2)
-        # self.player_3 = players.Player(self, self.color_3)
-        # self.player_4 = players.Player(self, self.color_4)
+        self.player_3 = players.Player(self, self.color_3)
+        self.player_4 = players.Player(self, self.color_4)
         
         self.player_1 = players.VISIONPLAYER(self, self.color_1, m)
         self.player_2 = players.VISIONPLAYER(self, self.color_2, m)
-        self.player_3 = players.VISIONPLAYER(self, self.color_3, m)
-        self.player_4 = players.VISIONPLAYER(self, self.color_4, m)
+        # self.player_3 = players.VISIONPLAYER(self, self.color_3, m)
+        # self.player_4 = players.VISIONPLAYER(self, self.color_4, m)
 
         self.order = [self.player_1, self.player_2, self.player_3, self.player_4]
 
@@ -213,15 +213,25 @@ class Board():
             # print(self.vector_repr(p))
             print(self)
             print("*"*10 + f"game over: winner is {self.winner()} " + "*"*10)
+        
+        return self.winner()
 
 
 if __name__ == "__main__":
     b = Board()
-    num_games_to_play = 200
+    num_games_to_play = 50
+    winners = {}
     for i in range(num_games_to_play):
         if i % (num_games_to_play/10) == 0:
             print(f"through {i} games of {num_games_to_play}")
-        b.play()
+        w = b.play()
         b.reset()
+
+        try:
+            winners[w.printed] += 1
+        except KeyError:
+            winners[w.printed] = 1
     
     b.play(printed=True)
+
+    print(winners)
