@@ -3,11 +3,14 @@ import constants
 import players
 import model
 from random import shuffle 
+from torch import load as torchload
+import time
 
 class Board():
     def __init__(self, size=constants.DEFAULT_SIZE):
         self.size = size
-        m = model.Model()
+        self.model = model.Model(model_filename="model.pt")
+        # self.model = model.Model()
 
         self.color_1 = stack.Color('r', '.')
         self.color_2 = stack.Color('b', '&')
@@ -16,13 +19,13 @@ class Board():
 
         # self.player_1 = players.Player(self, self.color_1)
         # self.player_2 = players.Player(self, self.color_2)
-        self.player_3 = players.Player(self, self.color_3)
+        # self.player_3 = players.Player(self, self.color_3)
         self.player_4 = players.Player(self, self.color_4)
         
-        self.player_1 = players.VISIONPLAYER(self, self.color_1, m)
-        self.player_2 = players.VISIONPLAYER(self, self.color_2, m)
-        # self.player_3 = players.VISIONPLAYER(self, self.color_3, m)
-        # self.player_4 = players.VISIONPLAYER(self, self.color_4, m)
+        self.player_1 = players.VISIONPLAYER(self, self.color_1, self.model)
+        self.player_2 = players.VISIONPLAYER(self, self.color_2, self.model)
+        self.player_3 = players.VISIONPLAYER(self, self.color_3, self.model)
+        # self.player_4 = players.VISIONPLAYER(self, self.color_4, self.model)
 
         self.order = [self.player_1, self.player_2, self.player_3, self.player_4]
 
@@ -117,9 +120,9 @@ class Board():
         """
         s = "--------" * self.size[1] + "-"
         for arr in self.grid:
-            s += "\n|   "
+            s += "\n| "
             for stk in arr:
-                s+=f"{stk.top_color}   |   "
+                s+=f"{stk.num_pieces if stk.num_pieces != 0 else ' '} {stk.top_color}   | "
             s+="\n|  ("
             for stk in arr:
                 s+=f"{stk.bottom_color})  |  ("
@@ -191,6 +194,7 @@ class Board():
             self.turn_i = (self.turn_i+1) % len(self.order)
             if printed:
                 print(self)
+                print(p.color, m)
         
         winning_color = self.winner()
         win_i = None
@@ -204,10 +208,10 @@ class Board():
         across = self.order[(win_i+2) % len(self.order)]
         farthest = self.order[(win_i+1) % len(self.order)]
 
-        winning_player.give_reward(1)
-        at_fault.give_reward(-1)
-        across.give_reward(-0.05)
-        farthest.give_reward(0)
+        winning_player.give_reward(constants.REWARD_WINNER)
+        at_fault.give_reward(constants.REWARD_AT_FAULT)
+        across.give_reward(constants.REWARD_ACROSS)
+        farthest.give_reward(constants.REWARD_FARTHEST)
 
         if printed:
             # print(self.vector_repr(p))
@@ -216,22 +220,46 @@ class Board():
         
         return self.winner()
 
+def hms(seconds):
+    hrs = int(seconds / 60 / 60)
+    min = int(seconds / 60 - (hrs * 60))
+    sec = seconds - (hrs * 60 * 60) - (min * 60)
+    return f"{hrs:02d}:{min:02d}:{sec:>06.3f}"
 
 if __name__ == "__main__":
+    start_time = time.time()
     b = Board()
-    num_games_to_play = 50
     winners = {}
-    for i in range(num_games_to_play):
-        if i % (num_games_to_play/10) == 0:
-            print(f"through {i} games of {num_games_to_play}")
-        w = b.play()
-        b.reset()
+    end_print = "no training happened"
 
-        try:
-            winners[w.printed] += 1
-        except KeyError:
-            winners[w.printed] = 1
-    
+    if constants.WANT_TO_TRAIN:
+        time_played = time.time() - start_time
+        i = 0
+        print(f"\ngoing to train for {hms(constants.TIME_TO_TRAIN)}\n")
+        while time_played < constants.TIME_TO_TRAIN:
+        # num_games_to_play = constants.NUMBER_TRAINING_GAMES
+        # for i in range(num_games_to_play):
+            if i % 20 == 0:
+                print(f"through {i} games in {hms(time_played)}")
+                print(winners)
+                b.model.save()
+            w = b.play()
+            b.reset()
+
+            try:
+                winners[w.printed] += 1
+            except KeyError:
+                winners[w.printed] = 1
+
+            time_played = time.time() - start_time
+            i+=1
+        else:
+            b.model.save()
+
+        end_print = f"done training in {hms(time.time() - start_time)}, played {i} games"
+
     b.play(printed=True)
 
     print(winners)
+    
+    print(end_print)

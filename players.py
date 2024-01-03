@@ -1,5 +1,7 @@
 import board
 import stack
+import constants
+
 import random
 import tree
 import model
@@ -111,8 +113,9 @@ class VISIONPLAYER(Player):
 
     def give_reward(self, r):
         num_turns = len(self.path)
-        reward_proportions = linspace(0.08, 1, num_turns)
-        reward = [r*p for p in reward_proportions]
+        reward_proportions = linspace(constants.LOWEST_REWARD_PROPORTION, constants.HIGHEST_REWARD_PROPORTION, num_turns-1)
+        reward = [r*p for p in reward_proportions] + [r]
+        # print(reward)
         for i in range(len(self.path)-1, -1, -1):
             # print(f"applying {p} proportion of reward {r} to the {i}th node in path")
             self.path[i].model.apply_reward(
