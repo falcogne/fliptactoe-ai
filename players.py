@@ -99,6 +99,9 @@ class VISIONPLAYER(Player):
 
         possible_moves = self.board.find_possible_moves()
         vs = [(m, self.board.test_move(self, m)) for m in possible_moves]
+        # i = random.randint(0, len(possible_moves)-1)
+        # self.path.append(vs[i][1])
+        # return vs[i][0]
 
         current_node = tree.Node(
             board_vec=self.board.vector_repr(self),
@@ -115,14 +118,20 @@ class VISIONPLAYER(Player):
         num_turns = len(self.path)
         reward_proportions = linspace(constants.LOWEST_REWARD_PROPORTION, constants.HIGHEST_REWARD_PROPORTION, num_turns-1)
         reward = [r*p for p in reward_proportions] + [r]
+        # reward = [r for _ in reward_proportions] + [r]
         # print(reward)
+        bs = []
+        rs = []
         for i in range(len(self.path)-1, -1, -1):
             # print(f"applying {p} proportion of reward {r} to the {i}th node in path")
+            bs.append(self.path[i])
+            rs.append(reward[i])
             self.path[i].model.apply_reward(
                 node_chosen=self.path[i],
                 y_actual=reward[i]
             )
         self.reset()
+        return bs, rs
 
 
     def reset(self):
