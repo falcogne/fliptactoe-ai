@@ -79,7 +79,7 @@ class Player():
         pass # shouldn't reset color, and board is reset seperately
 
 class VISIONPLAYER(Player):
-    def __init__(self, board : board.Board, color : stack.Color, m=None):
+    def __init__(self, board : board.Board, color : stack.Color, m=None, exploration_rate=constants.EXPLORATION_RATE):
         self.board = board
         self.color = color
         if m is None:
@@ -87,6 +87,7 @@ class VISIONPLAYER(Player):
         else:
             self.model = m
         self.path = []
+        self.exploration_rate = exploration_rate
 
     
     def turn(self, possible_moves=None):
@@ -107,6 +108,7 @@ class VISIONPLAYER(Player):
             board_vec=self.board.vector_repr(self),
             children_vectors= vs,
             model=self.model,
+            exploration_rate=self.exploration_rate
         )
         selected_node = current_node.select_child()
 

@@ -6,8 +6,8 @@ NUM_TO_WIN = 3
 EMPTY_COLOR = " "
 DEFAULT_SIZE = (4,4)
 
-EXPLORATION_RATE = 0.2
-LEARNING_RATE = 0.001
+EXPLORATION_RATE = 0.4
+LEARNING_RATE = 0.0012
 
 REWARD_WINNER = 1
 REWARD_AT_FAULT = -1
@@ -18,17 +18,17 @@ REWARD_FARTHEST = -0.02
 
 
 LOWEST_REWARD_PROPORTION = 0.02 # how much reward does the first move get
-HIGHEST_REWARD_PROPORTION = 0.8 # how much reward does the second to last move get
+HIGHEST_REWARD_PROPORTION = 0.95 # how much reward does the second to last move get
 
 SAVE_INTERVAL = 200 # games before it prints/saves
 
 hours = 0
-minutes = 10
+minutes = 30
 seconds = 0
 TIME_TO_TRAIN = hours * 60 * 60 + minutes * 60 + seconds
 WANT_TO_TRAIN = True
 LOAD_MODEL = True
-STARTER_MODEL_NUM = 9  # curr model num so >= 1
+STARTER_MODEL_NUM = 6  # curr model num so >= 1
 NUM_PRINT_AFTER_TRAINING = 1
 
 # save models and play them against each other

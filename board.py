@@ -26,16 +26,21 @@ class Board():
         # self.player_3 = players.Player(self, self.color_3)
         # self.player_4 = players.Player(self, self.color_4)
         
-        self.player_1 = players.VISIONPLAYER(self, self.color_1, self.curr_model)
-        self.player_2 = players.VISIONPLAYER(self, self.color_2, self.curr_model)
-        self.player_3 = players.VISIONPLAYER(self, self.color_3, self.prev_model)
-        self.player_4 = players.VISIONPLAYER(self, self.color_4, self.prev_model)
+        self.exploration_rate = constants.EXPLORATION_RATE
+
+        self.player_1 = players.VISIONPLAYER(self, self.color_1, self.curr_model, exploration_rate=self.exploration_rate)
+        self.player_2 = players.VISIONPLAYER(self, self.color_2, self.curr_model, exploration_rate=self.exploration_rate)
+        # self.player_3 = players.VISIONPLAYER(self, self.color_3, self.curr_model, exploration_rate=self.exploration_rate)
+        # self.player_4 = players.VISIONPLAYER(self, self.color_4, self.curr_model, exploration_rate=self.exploration_rate)
+        self.player_3 = players.VISIONPLAYER(self, self.color_3, self.prev_model, exploration_rate=0)
+        self.player_4 = players.VISIONPLAYER(self, self.color_4, self.prev_model, exploration_rate=0)
 
         # self.curr_model_players = [self.player_1, self.player_2, self.player_3, self.player_4]
         self.curr_model_players = [self.player_1, self.player_2]
         self.prev_model_players = [self.player_3, self.player_4]
         self.curr_model_win_count = 0
         self.prev_model_win_count = 0
+        self.same_model_in_a_row = 0
 
         self.order = [self.player_1, self.player_2, self.player_3, self.player_4]
 
@@ -56,8 +61,9 @@ class Board():
         self.curr_model.save()
         self.prev_model.save()
 
-        print(f"current [{self.curr_model_n}] win count: {self.curr_model_win_count} | prev [{self.prev_model_n}]: {self.prev_model_win_count}")
-        if self.curr_model_win_count != 0 and self.curr_model_win_count*.95 >= self.prev_model_win_count:
+        print(f"current [dynamic {self.curr_model_n}] win count: {self.curr_model_win_count} | prev [static {self.prev_model_n}]: {self.prev_model_win_count}")
+        if self.curr_model_win_count > self.prev_model_win_count:
+            self.same_model_in_a_row = 0
             self.prev_model_n = self.curr_model_n
             self.curr_model_n += 1
             self.prev_model.learn = False
@@ -69,6 +75,7 @@ class Board():
 
             print(f"starting new model [{self.curr_model_n}] from copy of [{self.prev_model_n}]")
         else:
+            self.same_model_in_a_row += 1
             self.curr_model_n = self.prev_model_n
             print(f"new was worse, so going back to [{self.curr_model_n}] and trying learning again")
         
@@ -79,8 +86,15 @@ class Board():
         self.prev_model = model.Model(load=True, square_fn=f'models/sq_{self.prev_model_n}.pt', threes_fn=f'models/th_{self.prev_model_n}.pt', linear_fn=f'models/ln_{self.prev_model_n}.pt')
         self.prev_model.learn=False
 
+            
+        if self.same_model_in_a_row > 4:
+            self.exploration_rate *= 0.9
+            print(f"lowering exploration rate to {self.exploration_rate:.4}")
+            self.same_model_in_a_row = 0
+            
         for p in self.curr_model_players:
             p.model = self.curr_model
+            p.exploration_rate = self.exploration_rate
         for p in self.prev_model_players:
             p.model = self.prev_model
 
